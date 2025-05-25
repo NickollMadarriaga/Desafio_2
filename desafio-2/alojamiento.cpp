@@ -1,8 +1,14 @@
 #include "alojamiento.h"
+#include <stdexcept>
+#include <iostream>
+using namespace std;
 
-alojamiento::alojamiento() : nombre(""), codigo(0), documentoAnfitrion(""), departamento(""),municipio(""), tipo(""), direccion(""), precioPorNoche(0.0), numFechas(0) {}
+alojamiento::alojamiento()
+    : nombre(""), codigo(0), documentoAnfitrion(""), departamento(""), municipio(""),
+    tipo(""), direccion(""), precioPorNoche(0.0), numFechas(0) {}
 
-alojamiento::alojamiento(string nom, int cod, string docAnf, string depto,string mun, string tip, string dir, double precio) {
+alojamiento::alojamiento(string nom, int cod, string docAnf, string depto,
+                         string mun, string tip, string dir, double precio) {
     if (nom.empty() || docAnf.empty() || dir.empty())
         throw invalid_argument("Nombre, documento del anfitrión o dirección no pueden estar vacíos.");
     if (precio < 0)
@@ -22,14 +28,16 @@ alojamiento::alojamiento(string nom, int cod, string docAnf, string depto,string
 }
 
 int alojamiento::getCodigo() const { return codigo; }
+
 string alojamiento::getNombre() const { return nombre; }
+
 double alojamiento::getPrecioPorNoche() const { return precioPorNoche; }
 
 bool alojamiento::disponible(fecha f, int duracion) {
     for (int i = 0; i < numFechas; i++) {
-        if (fechasReservadas[i].getDia() == f.getDia() &&
-            fechasReservadas[i].getMes() == f.getMes() &&
-            fechasReservadas[i].getAnio() == f.getAnio()) {
+        if (fechaReservadas[i].getDia() == f.getDia() &&
+            fechaReservadas[i].getMes() == f.getMes() &&
+            fechaReservadas[i].getAnio() == f.getAnio()) {
             return false;
         }
     }
@@ -39,5 +47,17 @@ bool alojamiento::disponible(fecha f, int duracion) {
 void alojamiento::agregarFechaReservada(fecha f) {
     if (numFechas >= Max_Fechas)
         throw runtime_error("No se pueden agregar más fechas reservadas.");
-    fechasReservadas[numFechas++] = f;
+    fechaReservadas[numFechas++] = f;
 }
+
+void alojamiento::mostrar() {
+    cout << "Nombre: " << nombre << endl;
+    cout << "Código: " << codigo << endl;
+    cout << "Documento del anfitrión: " << documentoAnfitrion << endl;
+    cout << "Departamento: " << departamento << endl;
+    cout << "Municipio: " << municipio << endl;
+    cout << "Tipo: " << tipo << endl;
+    cout << "Dirección: " << direccion << endl;
+    cout << "Precio por noche: " << precioPorNoche << endl;
+}
+

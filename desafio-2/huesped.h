@@ -17,6 +17,8 @@ public:
 
     string getDocumento() const;
     string getNombre() const;
+    int getAntiguedad() const;
+    double getPuntuacion() const;
 };
 
 #endif // HUESPED_H

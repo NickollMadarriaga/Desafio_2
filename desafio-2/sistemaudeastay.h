@@ -20,13 +20,17 @@ private:
     int totalAlojamientos;
 public:
     sistemaUdeaStay(int capacidadMax);
-    ~SistemaUdeaStay();
+    sistemaUdeaStay();
     void cargarHuespedes(const char* archivo);
     void cargarAlojamientos(const char* archivo);
     void cargarAnfitriones(const char* archivo);
     void mostrarHuesped() const;
     void mostrarAnfitriones() const;
     void mostrarAlojamientos() const;
+    anfitrion* buscarAnfitrion(const char* documento);
+    alojamiento* buscarAlojamiento(int codigo);
+    int siguienteCodigoReserva();
+    void crearReserva(int codAlojamiento, fecha fInicio, int duracion);
     void actualizarReservas( int diaHoy, int mesHoy, int anioHoy);
 };
 

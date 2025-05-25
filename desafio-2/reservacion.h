@@ -20,8 +20,7 @@ private:
 
 public:
     reservacion();
-    Reservacion(int codRes, int codAloj, string docHuesp, fecha entrada,
-                int dur, string metodo, fecha pago, double monto, string nota);
+    reservacion(int codRes, int codAloj, string docHuesp, fecha entrada,int dur, string metodo, fecha pago, double monto, string nota);
 
     int getCodigoReserva() const;
     int getCodigoAlojamiento() const;
@@ -32,6 +31,9 @@ public:
     fecha getFechaPago() const;
     double getMonto() const;
     string getAnotacion() const;
+    bool cruceFechas(fecha nuevaInicio, int nuevaDuracion);
+    void guardarReservaEnArchivo(const reservacion& r);
+    void guardarReserva(const reservacion& r);
 };
 
 #endif // RESERVACION_H

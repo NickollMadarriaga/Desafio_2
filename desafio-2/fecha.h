@@ -3,8 +3,7 @@
 #include <stdexcept>
 #include <ctime>
 
-class fecha
-{
+
 class fecha {
 private:
     int dia, mes, anio;
@@ -18,6 +17,8 @@ public:
      void setDia(int d);
      void setMes(int m);
      void setAnio(int a);
+     void sumarDia(int d) const;
+     void mostrarFecha()const;
     };
 
 

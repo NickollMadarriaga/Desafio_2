@@ -20,13 +20,17 @@ private:
     int numFechas;
 public:
     alojamiento();
-    alojamiento(string nom, int cod, string docAnf, string dep, string num, string tipo, string dir, double precio);
+    alojamiento(string nom, int cod, string docAnf, string dep, string mun, string tipo, string dir, double precio);
 
     int getCodigo() const;
     string getNombre() const;
+    string getMunicipio() const;
+    string getDocumentoAnfitrion() const;
     double getPrecioPorNoche() const;
     bool disponible(fecha f, int duracion);
     void agregarFechaReservada (fecha f);
+    void mostrarAlojamientos();
+    void mostrar();
 };
 
 #endif // ALOJAMIENTO_H
