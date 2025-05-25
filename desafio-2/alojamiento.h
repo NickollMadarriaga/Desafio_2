@@ -31,6 +31,7 @@ public:
     void agregarFechaReservada (fecha f);
     void mostrarAlojamientos();
     void mostrar();
+    void eliminarFechaReservada(const fecha& f);
 };
 
 #endif // ALOJAMIENTO_H

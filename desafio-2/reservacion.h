@@ -32,8 +32,12 @@ public:
     double getMonto() const;
     string getAnotacion() const;
     bool cruceFechas(fecha nuevaInicio, int nuevaDuracion);
-    void guardarReservaEnArchivo(const reservacion& r);
-    void guardarReserva(const reservacion& r);
+    void guardarReserva(int codRes, int codAloj, int dia, int mes, int anio,
+                        int duracion, const string& documentoHuesped,
+                        const string& metodoPago, double monto);
+    int generarCodigoReservaDesdeArchivo();
+    void anularReservacion();
+    void mostrar() const;
 };
 
 #endif // RESERVACION_H

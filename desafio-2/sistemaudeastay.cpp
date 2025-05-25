@@ -1,5 +1,4 @@
 #include "sistemaudeastay.h"
-#include "reservacion.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -244,4 +243,101 @@ anfitrion* buscarAnfitrion(const string& documento) {
         }
     }
     return nullptr;
+}
+
+void anularReservacion() {
+    int codigo;
+    cout << "Ingrese el código de la reservación a anular: ";
+    cin >> codigo;
+
+    int indice = -1;
+
+    // Buscar la reservación por código
+    for (int i = 0; i < totalReservas; ++i) {
+        if (reservas[i].getCodigoReserva() == codigo) {
+            // Verificar si el usuario actual tiene permiso
+            alojamiento* a = buscarAlojamiento(reservas[i].getCodigoAlojamiento());
+            bool permisoHuesped = (huespedActual != nullptr && reservas[i].getDocumentoHuesped() == huespedActual->getDocumento());
+            bool permisoAnfitrion = (anfitrionActual != nullptr && a && a->getDocumentoAnfitrion() == anfitrionActual->getDocumento());
+
+            if (permisoHuesped || permisoAnfitrion) {
+                indice = i;
+            } else {
+                cout << "No tiene permisos para anular esta reservación.\n";
+                return;
+            }
+            break;
+        }
+    }
+
+    if (indice == -1) {
+        cout << "Reservación no encontrada o no tiene permisos.\n";
+        return;
+    }
+
+    // Liberar las fechas en el alojamiento correspondiente
+    alojamiento* a = buscarAlojamiento(reservas[indice].getCodigoAlojamiento());
+    if (a) {
+        fecha fInicio = reservas[indice].getFechaEntrada();
+        int duracion = reservas[indice].getDuracion();
+        for (int i = 0; i < duracion; ++i) {
+            a->eliminarFechaReservada(fInicio.sumarDia(i));
+        }
+    }
+
+    // Eliminar del arreglo
+    for (int i = indice; i < totalReservas - 1; ++i) {
+        reservas[i] = reservas[i + 1];
+    }
+    totalReservas--;
+
+    // Reescribir archivo actualizado
+    ofstream out("reservas.txt");
+    if (!out.is_open()) {
+        cerr << "No se pudo abrir el archivo de reservas para actualizar.\n";
+        return;
+    }
+
+    for (int i = 0; i < totalReservas; ++i) {
+        out << reservas[i].getCodigoReserva() << " "
+            << reservas[i].getCodigoAlojamiento() << " "
+            << reservas[i].getFechaEntrada().getDia() << " "
+            << reservas[i].getFechaEntrada().getMes() << " "
+            << reservas[i].getFechaEntrada().getAnio() << " "
+            << reservas[i].getDuracion() << " "
+            << reservas[i].getDocumentoHuesped() << " "
+            << reservas[i].getMetodoPago() << " "
+            << reservas[i].getMonto() << "\n";
+    }
+
+    out.close();
+
+    cout << "Reservación anulada exitosamente y fechas liberadas.\n";
+}
+void consultarReservacionesAnfitrion(alojamiento alojamientos[], int cantAlojamientos,
+                                     reservacion reservacionesActivas[], int cantReservas,
+                                     const std::string& docAnfitrion,
+                                     const fecha& fechaInicio, const fecha& fechaFin) {
+    cout << "\n=== Reservaciones del Anfitrión entre ";
+    fechaInicio.mostrarFecha(); cout << " y "; fechaFin.mostrarFecha(); cout << " ===\n";
+
+    for (int i = 0; i < cantReservas; ++i) {
+        int codAloj = reservacionesActivas[i].getCodigoAlojamiento();  // ahora int
+        fecha fechaEntrada = reservacionesActivas[i].getFechaEntrada();
+
+        // Buscar el alojamiento correspondiente
+        for (int j = 0; j < cantAlojamientos; ++j) {
+            if (alojamientos[j].getCodigo() == codAloj &&
+                alojamientos[j].getDocumentoAnfitrion() == docAnfitrion) {
+
+                // Verificar si la fecha está en el rango
+                if (!fechaEntrada.fechaMenor(fechaInicio) &&
+                    !fechaFin.fechaMenor(fechaEntrada)) {
+
+                    cout << "\nReserva #" << i + 1 << ":\n";
+                    reservacionesActivas[i].mostrar();
+                }
+            }
+        }
+    }
 }

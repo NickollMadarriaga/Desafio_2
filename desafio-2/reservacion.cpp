@@ -35,7 +35,7 @@ fecha reservacion::getFechaPago() const { return fechaPago; }
 double reservacion::getMonto() const { return monto; }
 string reservacion::getAnotacion() const { return anotacion; }
 
-int generarCodigoReservaDesdeArchivo() {
+int reservacion::generarCodigoReservaDesdeArchivo() {
     ifstream archivo("reservas.txt");
     int maxCod = 999; // Código base si no hay reservas
 
@@ -62,12 +62,12 @@ bool reservacion::cruceFechas(fecha nuevaInicio, int nuevaDuracion) {
     fecha finNueva = nuevaInicio.sumarDia(nuevaDuracion); // Fecha fin de la reserva nueva
 
     // Retorna true si hay cruce: inicio nuevo < fin actual && inicio actual < fin nuevo
-    return (nuevaInicio.esMenor(finActual) && fechaEntrada.esMenor(finNueva));
+    return (nuevaInicio.fechaMenor(finActual) && fechaEntrada.fechaMenor(finNueva));
 }
 
-void guardarReserva(int codRes, int codAloj, int dia, int mes, int anio,
-                    int duracion, const string& documentoHuesped,
-                    const string& metodoPago, double monto) {
+void reservacion::guardarReserva(int codRes, int codAloj, int dia, int mes, int anio,
+                                 int duracion, const string& documentoHuesped,
+                                 const string& metodoPago, double monto) {
     ofstream archivo("reservas.txt", ios::app); // abrir en modo append
     if (!archivo.is_open()) {
         cerr << "No se pudo abrir el archivo de reservas para escribir.\n";
@@ -86,4 +86,17 @@ void guardarReserva(int codRes, int codAloj, int dia, int mes, int anio,
 
     archivo.close();
     cout << "Reserva guardada exitosamente.\n";
+}
+void reservacion::mostrar() const {
+    cout << "Código de Reservación: " << codigoReserva << endl;
+    cout << "Código del Alojamiento: " << codigoAlojamiento << endl;
+    cout << "Documento del Huésped: " << documentoHuesped << endl;
+    cout << "Fecha de Entrada: ";
+    fechaEntrada.mostrarFecha();
+    cout << "Duración: " << duracion << " noche(s)" << endl;
+    cout << "Método de Pago: " << metodoPago << endl;
+    cout << "Fecha de Pago: ";
+    fechaPago.mostrarFecha();
+    cout << "Monto Total: $" << monto << endl;
+    cout << "Anotación: " << anotacion << endl;
 }

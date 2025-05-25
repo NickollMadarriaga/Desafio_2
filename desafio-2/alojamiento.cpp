@@ -2,7 +2,10 @@
 #include <stdexcept>
 #include <iostream>
 using namespace std;
-
+int fechasReservadas = 0;
+string alojamiento::getDocumentoAnfitrion() const {
+    return documentoAnfitrion;
+}
 alojamiento::alojamiento()
     : nombre(""), codigo(0), documentoAnfitrion(""), departamento(""), municipio(""),
     tipo(""), direccion(""), precioPorNoche(0.0), numFechas(0) {}
@@ -59,5 +62,17 @@ void alojamiento::mostrar() {
     cout << "Tipo: " << tipo << endl;
     cout << "Dirección: " << direccion << endl;
     cout << "Precio por noche: " << precioPorNoche << endl;
+}
+void alojamiento::eliminarFechaReservada(const fecha& f) {
+    for (int i = 0; i < fechasReservadas; ++i) {
+        if (fechaReservadas[i].igual(f)) {
+            // Mover los elementos posteriores una posición hacia atrás
+            for (int j = i; j < fechasReservadas - 1; ++j) {
+                fechaReservadas[j] = fechaReservadas[j + 1];
+            }
+            fechasReservadas--;
+            break; // Solo una ocurrencia
+        }
+    }
 }
 

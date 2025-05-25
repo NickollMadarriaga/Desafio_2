@@ -7,6 +7,7 @@
 #include "huesped.h"
 #include "anfitrion.h"
 #include "alojamiento.h"
+#include "reservacion.h"
 using namespace std;
 
 class sistemaUdeaStay
@@ -15,6 +16,7 @@ private:
     huesped* huespedes;
     anfitrion* anfitriones;
     alojamiento* alojamientos;
+    reservacion* reservas;
     int totalHuespedes;
     int totalAnfitriones;
     int totalAlojamientos;
@@ -32,6 +34,10 @@ public:
     int siguienteCodigoReserva();
     void crearReserva(int codAlojamiento, fecha fInicio, int duracion);
     void actualizarReservas( int diaHoy, int mesHoy, int anioHoy);
+    void consultarReservacionesAnfitrion(alojamiento alojamientos[], int cantAlojamientos,
+                                         reservacion reservacionesActivas[], int cantReservas,
+                                         const char* docAnfitrion,
+                                         const char* fechaInicio, const char* fechaFin);
 };
 
 #endif // SISTEMAUDEASTAY_H

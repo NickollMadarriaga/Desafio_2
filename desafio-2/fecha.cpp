@@ -63,3 +63,12 @@ void fecha::mostrarFecha() const {
          << " de " << meses[this->mes - 1]
          << " del " << this->anio << endl;
 }
+bool fecha::fechaMenor(const fecha& otra) const {
+    if (anio < otra.anio) return true;
+    if (anio == otra.anio && mes < otra.mes) return true;
+    if (anio == otra.anio && mes == otra.mes && dia < otra.dia) return true;
+    return false;
+}
+bool fecha::igual(const fecha& otra) const {
+    return dia == otra.dia && mes == otra.mes && anio == otra.anio;
+}

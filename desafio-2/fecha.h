@@ -17,8 +17,10 @@ public:
      void setDia(int d);
      void setMes(int m);
      void setAnio(int a);
-     void sumarDia(int d) const;
+     fecha sumarDia(int d) const;
      void mostrarFecha()const;
+     bool fechaMenor(const fecha& otra) const;
+     bool igual(const fecha& otra) const;
     };
 
 
