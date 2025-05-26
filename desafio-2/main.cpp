@@ -1,19 +1,69 @@
 #include <QCoreApplication>
+#include "sistemaUdeaStay.h"
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    sistemaUdeaStay sistema;
+        // Cargar datos iniciales
+        sistema.cargarHuespedes("huespedes.txt", Huespedes, totalHuespedes, capacidad);
+        sistema.cargarAnfitriones("anfitriones.txt");
+        sistema.cargarAlojamientos("alojamientos.txt");
 
-    // Set up code that uses the Qt event loop here.
-    // Call a.quit() or a.exit() to quit the application.
-    // A not very useful example would be including
-    // #include <QTimer>
-    // near the top of the file and calling
-    // QTimer::singleShot(5000, &a, &QCoreApplication::quit);
-    // which quits the application after 5 seconds.
+        cout << "=== Bienvenido a UdeAStay ===\n";
+        sistema.iniciarSesion();
 
-    // If you do not need a running Qt event loop, remove the call
-    // to a.exec() or use the Non-Qt Plain C++ Application template.
+        if (huespedActual) {
+            int opcion;
+            do {
+                cout << "\n--- Menú Huésped ---\n";
+                cout << "1. Crear reserva\n";
+                cout << "2. Anular reserva\n";
+                cout << "3. Salir\n";
+                cout << "Seleccione una opción: ";
+                cin >> opcion;
 
-    return a.exec();
-}
+                if (opcion == 1) {
+                    int codAloj, duracion, d, m, a;
+                    cout << "Código del alojamiento: "; cin >> codAloj;
+                    cout << "Fecha de entrada (día mes año): "; cin >> d >> m >> a;
+                    cout << "Duración en noches: "; cin >> duracion;
+                    sistema.crearReserva(codAloj, fecha(d, m, a), duracion);
+                } else if (opcion == 2) {
+                    sistema.anularReservacion();
+                }
+
+            } while (opcion != 3);
+        } else if (anfitrionActual) {
+            int opcion;
+            do {
+                cout << "\n--- Menú Anfitrión ---\n";
+                cout << "1. Consultar reservaciones\n";
+                cout << "2. Anular reserva\n";
+                cout << "3. Salir\n";
+                cout << "Seleccione una opción: ";
+                cin >> opcion;
+
+                if (opcion == 1) {
+                    int d1, m1, a1, d2, m2, a2;
+                    cout << "Ingrese fecha de inicio (día mes año): "; cin >> d1 >> m1 >> a1;
+                    cout << "Ingrese fecha de fin (día mes año): "; cin >> d2 >> m2 >> a2;
+                    sistema.consultarReservacionesAnfitrion(Alojamientos, totalAlojamientos,
+                                                    reservas, totalReservas,
+                                                    anfitrionActual->getDocumento(),
+                                                    fecha(d1, m1, a1), fecha(d2, m2, a2));
+                } else if (opcion == 2) {
+                    sistema.anularReservacion();
+                }
+
+            } while (opcion != 3);
+        }
+
+        cout << "Gracias por usar UdeAStay. Hasta pronto.\n";
+        return a.exec();
+    }
+
+
+

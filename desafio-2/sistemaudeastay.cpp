@@ -19,11 +19,12 @@ int totalReservas = 0;
 int diaHoy = 24, mesHoy = 5, anioHoy = 2025; // Simulación de fecha actual
 
 sistemaUdeaStay::sistemaUdeaStay() {}
+
 // Variables globales para el usuario actual
 huesped* huespedActual = nullptr;
 anfitrion* anfitrionActual = nullptr;
 
-void iniciarSesion() {
+void sistemaUdeaStay::iniciarSesion() {
     string documento;
     cout << "Ingrese su documento: ";
     cin >> documento;
@@ -50,7 +51,7 @@ void iniciarSesion() {
 
     cout << "Documento no encontrado. Por favor, verifique e intente de nuevo.\n";
 }
-void cargarHuespedes(const char* nombreArchivo, huesped* arreglo, int& total, int max) {
+void sistemaUdeaStay::cargarHuespedes(const char* nombreArchivo, huesped* arreglo, int& total, int max) {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         cout << "No se pudo abrir el archivo de huéspedes.\n";
@@ -78,7 +79,7 @@ void cargarHuespedes(const char* nombreArchivo, huesped* arreglo, int& total, in
     archivo.close();
 }
 
-void cargarAnfitriones(const char* archivo) {
+void sistemaUdeaStay::cargarAnfitriones(const char* archivo) {
     ifstream in(archivo);
     if (!in.is_open()) {
         cout << "Error al abrir archivo de anfitriones.\n";
@@ -104,7 +105,7 @@ void cargarAnfitriones(const char* archivo) {
     in.close();
 }
 
-void cargarAlojamientos(const char* archivo) {
+void sistemaUdeaStay::cargarAlojamientos(const char* archivo) {
     ifstream in(archivo);
     if (!in.is_open()) {
         cout << "Error al abrir archivo de alojamientos.\n";
@@ -134,7 +135,7 @@ void cargarAlojamientos(const char* archivo) {
     in.close();
 }
 
-bool disponibilidadAlojamiento(alojamiento& a, fecha fInicio, int duracion) {
+bool sistemaUdeaStay::disponibilidadAlojamiento(alojamiento& a, fecha fInicio, int duracion) {
     for (int i = 0; i < duracion; i++) {
         fecha f = fInicio.sumarDia(i);
         if (!a.disponible(f, 1)) {
@@ -144,7 +145,7 @@ bool disponibilidadAlojamiento(alojamiento& a, fecha fInicio, int duracion) {
     return true;
 }
 
-alojamiento* buscarAlojamiento(int codigo) {
+alojamiento* sistemaUdeaStay::buscarAlojamiento(int codigo) {
     for (int i = 0; i < totalAlojamientos; ++i) {
         if (Alojamientos[i].getCodigo() == codigo) {
             return &Alojamientos[i];
@@ -153,7 +154,7 @@ alojamiento* buscarAlojamiento(int codigo) {
     return nullptr;
 }
 
-int siguienteCodigoReserva() {
+int sistemaUdeaStay::siguienteCodigoReserva() {
     ifstream archivo("reservas.txt");
     int maxCodigo = 0;
     string linea;
@@ -171,7 +172,7 @@ int siguienteCodigoReserva() {
     return maxCodigo + 1;
 }
 
-void guardarReservaEnArchivo(const reservacion& r) {
+void sistemaUdeaStay::guardarReservaEnArchivo(const reservacion& r) {
     ofstream archivo("reservas.txt", ios::app);
     if (archivo.is_open()) {
         archivo << r.getCodigoReserva() << " "
@@ -187,7 +188,7 @@ void guardarReservaEnArchivo(const reservacion& r) {
     }
 }
 
-void crearReserva(int codAlojamiento, fecha fInicio, int duracion) {
+void sistemaUdeaStay::crearReserva(int codAlojamiento, fecha fInicio, int duracion) {
     alojamiento* a = buscarAlojamiento(codAlojamiento);
     if (!a || !a->disponible(fInicio, duracion)) {
         cout << "El alojamiento no está disponible en las fechas indicadas.\n";
@@ -236,7 +237,7 @@ void crearReserva(int codAlojamiento, fecha fInicio, int duracion) {
     cout << "Hasta: "; fInicio.sumarDia(duracion).mostrarFecha();
 }
 
-anfitrion* buscarAnfitrion(const string& documento) {
+anfitrion* sistemaUdeaStay::buscarAnfitrion(const string& documento) {
     for (int i = 0; i < totalAnfitriones; i++) {
         if (Anfitriones[i].getDocumento() == documento) {
             return &Anfitriones[i];
@@ -245,7 +246,7 @@ anfitrion* buscarAnfitrion(const string& documento) {
     return nullptr;
 }
 
-void anularReservacion() {
+void sistemaUdeaStay::anularReservacion() {
     int codigo;
     cout << "Ingrese el código de la reservación a anular: ";
     cin >> codigo;
@@ -314,7 +315,7 @@ void anularReservacion() {
 
     cout << "Reservación anulada exitosamente y fechas liberadas.\n";
 }
-void consultarReservacionesAnfitrion(alojamiento alojamientos[], int cantAlojamientos,
+void sistemaUdeaStay::consultarReservacionesAnfitrion(alojamiento alojamientos[], int cantAlojamientos,
                                      reservacion reservacionesActivas[], int cantReservas,
                                      const std::string& docAnfitrion,
                                      const fecha& fechaInicio, const fecha& fechaFin) {

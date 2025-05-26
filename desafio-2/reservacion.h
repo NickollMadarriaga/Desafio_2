@@ -36,7 +36,6 @@ public:
                         int duracion, const string& documentoHuesped,
                         const string& metodoPago, double monto);
     int generarCodigoReservaDesdeArchivo();
-    void anularReservacion();
     void mostrar() const;
 };
 
