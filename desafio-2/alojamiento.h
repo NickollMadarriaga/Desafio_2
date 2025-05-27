@@ -16,21 +16,25 @@ private:
     string tipo;
     string direccion;
     double precioPorNoche;
+    string amenidades;
     fecha fechaReservadas[Max_Fechas];
     int numFechas;
 public:
     alojamiento();
-    alojamiento(string nom, int cod, string docAnf, string dep, string mun, string tipo, string dir, double precio);
+    alojamiento(string nom, int cod, string docAnf, string dep, string mun, string tipo, string dir, double precio, string ameni);
 
     int getCodigo() const;
     string getNombre() const;
     string getMunicipio() const;
+    string getDepartamento() const;
+    string getTipo() const;
+    string getDireccion () const;
     string getDocumentoAnfitrion() const;
     double getPrecioPorNoche() const;
+    string getAmenidades() const;
     bool disponible(fecha f, int duracion);
     void agregarFechaReservada (fecha f);
-    void mostrarAlojamientos();
-    void mostrar();
+    void mostrarAlojamiento();
     void eliminarFechaReservada(const fecha& f);
 };
 

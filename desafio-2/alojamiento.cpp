@@ -2,22 +2,22 @@
 #include <stdexcept>
 #include <iostream>
 using namespace std;
-int fechasReservadas = 0;
+
 string alojamiento::getDocumentoAnfitrion() const {
     return documentoAnfitrion;
 }
 alojamiento::alojamiento()
     : nombre(""), codigo(0), documentoAnfitrion(""), departamento(""), municipio(""),
-    tipo(""), direccion(""), precioPorNoche(0.0), numFechas(0) {}
+    tipo(""), direccion(""), amenidades(""), precioPorNoche(0.0), numFechas(0) {}
 
 alojamiento::alojamiento(string nom, int cod, string docAnf, string depto,
-                         string mun, string tip, string dir, double precio) {
+                         string mun, string tip, string dir, double precio, string ameni) {
     if (nom.empty() || docAnf.empty() || dir.empty())
         throw invalid_argument("Nombre, documento del anfitrión o dirección no pueden estar vacíos.");
     if (precio < 0)
         throw invalid_argument("El precio no puede ser negativo.");
-    if (tip != "casa" && tip != "apartamento")
-        throw invalid_argument("Tipo de alojamiento inválido (debe ser 'casa' o 'apartamento').");
+    if (tip != "Casa" && tip != "Apartamento")
+        throw invalid_argument("Tipo de alojamiento inválido (debe ser 'Casa' o 'Apartamento').");
 
     nombre = nom;
     codigo = cod;
@@ -26,6 +26,7 @@ alojamiento::alojamiento(string nom, int cod, string docAnf, string depto,
     municipio = mun;
     tipo = tip;
     direccion = dir;
+    amenidades= ameni;
     precioPorNoche = precio;
     numFechas = 0;
 }
@@ -35,13 +36,16 @@ int alojamiento::getCodigo() const { return codigo; }
 string alojamiento::getNombre() const { return nombre; }
 
 double alojamiento::getPrecioPorNoche() const { return precioPorNoche; }
+string alojamiento::getAmenidades() const {return amenidades; }
+string alojamiento::getMunicipio() const { return municipio;}
 
 bool alojamiento::disponible(fecha f, int duracion) {
-    for (int i = 0; i < numFechas; i++) {
-        if (fechaReservadas[i].getDia() == f.getDia() &&
-            fechaReservadas[i].getMes() == f.getMes() &&
-            fechaReservadas[i].getAnio() == f.getAnio()) {
-            return false;
+    for (int d = 0; d < duracion; d++) {
+        fecha diaActual = f.sumarDias(d);
+        for (int i = 0; i < numFechas; i++) {
+            if (fechaReservadas[i] == diaActual) {
+                return false;
+            }
         }
     }
     return true;
@@ -53,7 +57,7 @@ void alojamiento::agregarFechaReservada(fecha f) {
     fechaReservadas[numFechas++] = f;
 }
 
-void alojamiento::mostrar() {
+void alojamiento::mostrarAlojamiento() {
     cout << "Nombre: " << nombre << endl;
     cout << "Código: " << codigo << endl;
     cout << "Documento del anfitrión: " << documentoAnfitrion << endl;
@@ -61,17 +65,18 @@ void alojamiento::mostrar() {
     cout << "Municipio: " << municipio << endl;
     cout << "Tipo: " << tipo << endl;
     cout << "Dirección: " << direccion << endl;
+    cout << "Amenidades: " << amenidades << endl;
     cout << "Precio por noche: " << precioPorNoche << endl;
 }
 void alojamiento::eliminarFechaReservada(const fecha& f) {
-    for (int i = 0; i < fechasReservadas; ++i) {
-        if (fechaReservadas[i].igual(f)) {
+    for (int i = 0; i < numFechas; ++i) {
+        if (fechaReservadas[i] == f) {
             // Mover los elementos posteriores una posición hacia atrás
-            for (int j = i; j < fechasReservadas - 1; ++j) {
+            for (int j = i; j < numFechas - 1; ++j) {
                 fechaReservadas[j] = fechaReservadas[j + 1];
             }
-            fechasReservadas--;
-            break; // Solo una ocurrencia
+            numFechas--;
+            break;
         }
     }
 }

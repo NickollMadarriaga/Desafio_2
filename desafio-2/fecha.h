@@ -17,10 +17,12 @@ public:
      void setDia(int d);
      void setMes(int m);
      void setAnio(int a);
-     fecha sumarDia(int d) const;
+     fecha sumarDias(int d) const;
      void mostrarFecha()const;
-     bool fechaMenor(const fecha& otra) const;
-     bool igual(const fecha& otra) const;
+     bool operator==(const fecha& otra) const;
+     bool operator<(const fecha& otra) const;
+     bool operator>(const fecha& otra) const;
+     bool esDentroDe12Meses(const fecha& inicio) const;
     };
 
 

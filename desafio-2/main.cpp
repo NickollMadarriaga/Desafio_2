@@ -1,69 +1,88 @@
 #include <QCoreApplication>
 #include "sistemaUdeaStay.h"
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     sistemaUdeaStay sistema;
-        // Cargar datos iniciales
-        sistema.cargarHuespedes("huespedes.txt", Huespedes, totalHuespedes, capacidad);
-        sistema.cargarAnfitriones("anfitriones.txt");
-        sistema.cargarAlojamientos("alojamientos.txt");
+    sistema.cargarHuespedes(std::string("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\huespedes.txt"));
+    sistema.cargarAnfitriones(std::string("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\anfitriones.txt"));
+    sistema.cargarAlojamientos(std::string("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\alojamientos.txt"));
+    sistema.cargarReservas("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\reservas.txt");
+    sistema.cargarHistorico("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\historico.txt");
 
-        cout << "=== Bienvenido a UdeAStay ===\n";
-        sistema.iniciarSesion();
+    int opcion;
+    do {
+        cout << "\n=== Menú Principal ===\n";
+        cout << "1. Iniciar sesión\n";
+        cout << "0. Salir\n";
+        cout << "Opción: ";
+        cin >> opcion;
 
-        if (huespedActual) {
-            int opcion;
-            do {
-                cout << "\n--- Menú Huésped ---\n";
-                cout << "1. Crear reserva\n";
-                cout << "2. Anular reserva\n";
-                cout << "3. Salir\n";
-                cout << "Seleccione una opción: ";
-                cin >> opcion;
-
-                if (opcion == 1) {
-                    int codAloj, duracion, d, m, a;
-                    cout << "Código del alojamiento: "; cin >> codAloj;
-                    cout << "Fecha de entrada (día mes año): "; cin >> d >> m >> a;
-                    cout << "Duración en noches: "; cin >> duracion;
-                    sistema.crearReserva(codAloj, fecha(d, m, a), duracion);
-                } else if (opcion == 2) {
-                    sistema.anularReservacion();
+        switch (opcion) {
+            case 1:
+                sistema.iniciarSesion();
+                if (sistema.gethuespedActual() != nullptr) {
+                    int opH;
+                    do {
+                        cout << "\n=== Menú Huésped ===\n";
+                        cout << "1. Ver alojamientos disponibles\n";
+                        cout << "2. Anular reservación\n";
+                        cout << "0. Cerrar sesión\n";
+                        cout << "Opción: ";
+                        cin >> opH;
+                        switch (opH) {
+                            case 1:
+                                sistema.mostrarAlojamientosDisponibles();
+                                break;
+                            case 2:
+                                sistema.anularReservacion();
+                                break;
+                            case 0:
+                                sistema.sethuespedActual(nullptr);
+                                break;
+                            default:
+                                cout << "Opción no válida.\n";
+                        }
+                    } while (opH != 0);
+                } else if (sistema.getanfitrionActual() != nullptr) {
+                    int opA;
+                    do {
+                        cout << "\n=== Menú Anfitrión ===\n";
+                        cout << "1. Consultar reservaciones en mis alojamientos\n";
+                        cout << "2. Actualizar histórico de reservaciones\n";
+                        cout << "0. Cerrar sesión\n";
+                        cout << "Opción: ";
+                        cin >> opA;
+                        switch (opA) {
+                            case 1:
+                                sistema.consultarReservacionesAnfitrion();
+                                break;
+                            case 2:
+                                sistema.actualizarHistorico("C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\reservas.txt", "C:\\Users\\nicko\\OneDrive\\Documentos\\GitHub\\Desafio_2\\desafio-2\\build\\historico.txt");
+                                break;
+                            case 0:
+                                sistema.setanfitrionActual(nullptr);
+                                break;
+                            default:
+                                cout << "Opción no válida.\n";
+                        }
+                    } while (opA != 0);
                 }
+                break;
 
-            } while (opcion != 3);
-        } else if (anfitrionActual) {
-            int opcion;
-            do {
-                cout << "\n--- Menú Anfitrión ---\n";
-                cout << "1. Consultar reservaciones\n";
-                cout << "2. Anular reserva\n";
-                cout << "3. Salir\n";
-                cout << "Seleccione una opción: ";
-                cin >> opcion;
+            case 0:
+                cout << "Gracias por usar UdeAStay. ¡Hasta luego!\n";
+                break;
 
-                if (opcion == 1) {
-                    int d1, m1, a1, d2, m2, a2;
-                    cout << "Ingrese fecha de inicio (día mes año): "; cin >> d1 >> m1 >> a1;
-                    cout << "Ingrese fecha de fin (día mes año): "; cin >> d2 >> m2 >> a2;
-                    sistema.consultarReservacionesAnfitrion(Alojamientos, totalAlojamientos,
-                                                    reservas, totalReservas,
-                                                    anfitrionActual->getDocumento(),
-                                                    fecha(d1, m1, a1), fecha(d2, m2, a2));
-                } else if (opcion == 2) {
-                    sistema.anularReservacion();
-                }
-
-            } while (opcion != 3);
+            default:
+                cout << "Opción no válida.\n";
         }
 
-        cout << "Gracias por usar UdeAStay. Hasta pronto.\n";
-        return a.exec();
-    }
+    } while (opcion != 0);
 
-
-
+    return 0;
+}

@@ -31,7 +31,7 @@ string reservacion::getDocumentoHuesped() const { return documentoHuesped; }
 fecha reservacion::getFechaEntrada() const { return fechaEntrada; }
 int reservacion::getDuracion() const { return duracion; }
 string reservacion::getMetodoPago() const { return metodoPago; }
-fecha reservacion::getFechaPago() const { return fechaPago; }
+//fecha reservacion::getFechaPago() const { return fechaPago; }
 double reservacion::getMonto() const { return monto; }
 string reservacion::getAnotacion() const { return anotacion; }
 
@@ -57,36 +57,19 @@ int reservacion::generarCodigoReservaDesdeArchivo() {
     archivo.close();
     return maxCod + 1;
 }
+void reservacion::setAnotacion(const string& nota) {
+    if (nota.length() > 1000) throw invalid_argument("Anotación demasiado larga.");
+    anotacion = nota;
+}
+
 bool reservacion::cruceFechas(fecha nuevaInicio, int nuevaDuracion) {
-    fecha finActual = fechaEntrada.sumarDia(duracion); // Fecha fin de esta reserva
-    fecha finNueva = nuevaInicio.sumarDia(nuevaDuracion); // Fecha fin de la reserva nueva
+    fecha finActual = fechaEntrada.sumarDias(duracion); // Fecha fin de esta reserva
+    fecha finNueva = nuevaInicio.sumarDias(nuevaDuracion); // Fecha fin de la reserva nueva
 
     // Retorna true si hay cruce: inicio nuevo < fin actual && inicio actual < fin nuevo
-    return (nuevaInicio.fechaMenor(finActual) && fechaEntrada.fechaMenor(finNueva));
+    return (nuevaInicio < finActual && fechaEntrada < finNueva);
 }
 
-void reservacion::guardarReserva(int codRes, int codAloj, int dia, int mes, int anio,
-                                 int duracion, const string& documentoHuesped,
-                                 const string& metodoPago, double monto) {
-    ofstream archivo("reservas.txt", ios::app); // abrir en modo append
-    if (!archivo.is_open()) {
-        cerr << "No se pudo abrir el archivo de reservas para escribir.\n";
-        return;
-    }
-
-    archivo << codRes << " "
-            << codAloj << " "
-            << dia << " "
-            << mes << " "
-            << anio << " "
-            << duracion << " "
-            << documentoHuesped << " "
-            << metodoPago << " "
-            << monto << endl;
-
-    archivo.close();
-    cout << "Reserva guardada exitosamente.\n";
-}
 void reservacion::mostrar() const {
     cout << "Código de Reservación: " << codigoReserva << endl;
     cout << "Código del Alojamiento: " << codigoAlojamiento << endl;
@@ -99,4 +82,17 @@ void reservacion::mostrar() const {
     fechaPago.mostrarFecha();
     cout << "Monto Total: $" << monto << endl;
     cout << "Anotación: " << anotacion << endl;
+}
+
+void reservacion::guardarEnArchivo(ofstream& archivo) const {
+    archivo << codigoReserva << " "
+            << codigoAlojamiento << " "
+            << fechaEntrada.getDia() << " "
+            << fechaEntrada.getMes() << " "
+            << fechaEntrada.getAnio() << " "
+            << duracion << " "
+            << documentoHuesped << " "
+            << metodoPago << " "
+            << monto << " "
+            << anotacion << "\n";
 }

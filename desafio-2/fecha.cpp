@@ -35,7 +35,7 @@ bool esBisiesto(int a) {
     return (a % 4 == 0 && a % 100 != 0) || (a % 400 == 0);
 }
 
-fecha fecha::sumarDia(int d) const {
+fecha fecha::sumarDias(int d) const {
     tm tiempo = {};
     tiempo.tm_mday = dia;
     tiempo.tm_mon = mes - 1;
@@ -63,12 +63,22 @@ void fecha::mostrarFecha() const {
          << " de " << meses[this->mes - 1]
          << " del " << this->anio << endl;
 }
-bool fecha::fechaMenor(const fecha& otra) const {
+bool fecha::operator<(const fecha& otra) const {
     if (anio < otra.anio) return true;
     if (anio == otra.anio && mes < otra.mes) return true;
     if (anio == otra.anio && mes == otra.mes && dia < otra.dia) return true;
     return false;
 }
-bool fecha::igual(const fecha& otra) const {
+bool fecha::operator==(const fecha& otra) const {
     return dia == otra.dia && mes == otra.mes && anio == otra.anio;
+}
+bool fecha::operator>(const fecha& otra) const {
+    if (anio != otra.anio) return anio > otra.anio;
+    if (mes != otra.mes) return mes > otra.mes;
+    return dia > otra.dia;
+}
+bool fecha::esDentroDe12Meses(const fecha& inicio) const {
+    int totalMesesInicio = inicio.anio * 12 + inicio.mes;
+    int totalMesesFin = anio * 12 + mes;
+    return totalMesesFin >= totalMesesInicio && totalMesesFin <= totalMesesInicio + 11;
 }

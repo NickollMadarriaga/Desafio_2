@@ -10,50 +10,50 @@
 #include "reservacion.h"
 using namespace std;
 
-extern const int capacidad;
-extern huesped Huespedes[];
-extern alojamiento Alojamientos[];
-extern anfitrion Anfitriones[];
-extern reservacion reservas[];
-extern int totalAlojamientos;
-extern int totalHuespedes;
-extern int totalAnfitriones;
-extern int totalReservas;
-extern huesped* huespedActual;
-extern anfitrion* anfitrionActual;
 class sistemaUdeaStay
 {
 private:
+    int capacidad = 100;
      huesped* huespedes;
      anfitrion* anfitriones;
      alojamiento* alojamientos;
      reservacion* reservas;
+     reservacion* historico;
      int totalHuespedes;
      int totalAnfitriones;
      int totalAlojamientos;
+     int totalReservas;
+     int totalHistorico;
+     huesped* huespedActual;
+     anfitrion* anfitrionActual;
 public:
-    sistemaUdeaStay(int capacidadMax);
     sistemaUdeaStay();
-    void cargarHuespedes(const char* archivo, huesped arreglo[], int& total, int capacidad);
-    void cargarAlojamientos(const char* archivo);
-    void cargarAnfitriones(const char* archivo);
+    ~sistemaUdeaStay();
+    huesped* gethuespedActual();
+    anfitrion* getanfitrionActual();
+    void setanfitrionActual(anfitrion* a);
+    void sethuespedActual(huesped* h);
+    void cargarHuespedes(const std::string&);
+    void cargarAlojamientos(const std::string&);
+    void cargarAnfitriones(const std::string&);
+    void cargarReservas( const string& archivo);
+    void cargarHistorico(const string& archivo);
     void mostrarHuesped() const;
     void mostrarAnfitriones() const;
     void mostrarAlojamientos() const;
-    anfitrion* buscarAnfitrion(const char* documento);
     alojamiento* buscarAlojamiento(int codigo);
     int siguienteCodigoReserva();
     void iniciarSesion();
     void crearReserva(int codAlojamiento, fecha fInicio, int duracion);
-    void actualizarReservas( int diaHoy, int mesHoy, int anioHoy);
-    void consultarReservacionesAnfitrion(alojamiento alojamientos[], int cantAlojamientos,
-                                         reservacion reservacionesActivas[], int cantReservas,
-                                         const std::string& docAnfitrion,
-                                         const fecha& fechaInicio, const fecha& fechaFin);
+    void actualizarHistorico( const std::string&, const std::string&);
+    void consultarReservacionesAnfitrion();
     void anularReservacion();
     bool disponibilidadAlojamiento(alojamiento& a, fecha fInicio, int duracion);
     void guardarReservaEnArchivo(const reservacion& r);
+    void guardarReservas( const std::string& );
+    void guardarHistorico(const std::string&);
     anfitrion* buscarAnfitrion(const string& documento);
+    void mostrarAlojamientosDisponibles();
 };
 
 #endif // SISTEMAUDEASTAY_H
