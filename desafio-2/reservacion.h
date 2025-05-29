@@ -12,7 +12,7 @@ private:
     int codigoAlojamiento;
     string documentoHuesped;
     fecha fechaEntrada;
-    int duracion; // en noches
+    int duracion; // en dias
     string metodoPago; // PSE, TCrédito
     fecha fechaPago;
     double monto;

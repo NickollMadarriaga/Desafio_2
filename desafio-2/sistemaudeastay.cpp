@@ -4,8 +4,11 @@
 #include <fstream>
 #include <sstream>
 #include <ctime>
+#include <cctype>
+#include <limits>
 using namespace std;
 
+long long contadorIteraciones = 0;
 
 sistemaUdeaStay::sistemaUdeaStay() {
     capacidad = 100;
@@ -21,6 +24,11 @@ sistemaUdeaStay::sistemaUdeaStay() {
     huespedActual = nullptr;
     anfitrionActual = nullptr;
 }
+int sistemaUdeaStay::getTotalHuespedes() const { return totalHuespedes; }
+int sistemaUdeaStay::getTotalAnfitriones() const { return totalAnfitriones; }
+int sistemaUdeaStay::getTotalAlojamientos() const { return totalAlojamientos; }
+int sistemaUdeaStay::getTotalReservas() const { return totalReservas; }
+int sistemaUdeaStay::getTotalHistorico() const { return totalHistorico; }
 huesped* sistemaUdeaStay::gethuespedActual() {
     return huespedActual;
 }
@@ -33,7 +41,21 @@ void sistemaUdeaStay::sethuespedActual(huesped* h) {
 void sistemaUdeaStay::setanfitrionActual(anfitrion* a) {
     anfitrionActual = a;
 }
-
+string normalizarTexto(const string& texto) {
+    string resultado;
+    for (char c : texto) {
+        switch (c) {
+        case 'á': case 'Á': resultado += 'a'; break;
+        case 'é': case 'É': resultado += 'e'; break;
+        case 'í': case 'Í': resultado += 'i'; break;
+        case 'ó': case 'Ó': resultado += 'o'; break;
+        case 'ú': case 'Ú': resultado += 'u'; break;
+        default:
+            resultado += tolower(c); // aquí sí usamos tolower para todo lo demás
+        }
+    }
+    return resultado;
+}
 void sistemaUdeaStay::iniciarSesion() {
     string documento;
     cout << "Ingrese su documento: ";
@@ -41,6 +63,7 @@ void sistemaUdeaStay::iniciarSesion() {
 
     // Buscar en la lista de huéspedes
     for (int i = 0; i < totalHuespedes; ++i) {
+        contadorIteraciones++;
         if (huespedes[i].getDocumento() == documento) {
             huespedActual = &huespedes[i];
             anfitrionActual = nullptr; // asegurarse de que el otro sea null
@@ -51,6 +74,7 @@ void sistemaUdeaStay::iniciarSesion() {
 
     // Buscar en la lista de anfitriones
     for (int i = 0; i < totalAnfitriones; ++i) {
+        contadorIteraciones++;
         if (anfitriones[i].getDocumento() == documento) {
             anfitrionActual = &anfitriones[i];
             huespedActual = nullptr;
@@ -162,7 +186,7 @@ void sistemaUdeaStay::cargarAlojamientos(const std::string& nombreArchivo) {
     string linea;
     while (getline(archivo, linea)) {
         stringstream ss(linea);
-        string codStr, nom, docAnf, depto, muni, tipo, dir, ameni;
+        string codStr, nom, docAnf, depto, muni, tipo, dir, precStr, ameni;
         double prec;
         int cod;
 
@@ -173,13 +197,11 @@ void sistemaUdeaStay::cargarAlojamientos(const std::string& nombreArchivo) {
         getline(ss, muni, ',');
         getline(ss, tipo, ',');
         getline(ss, dir, ',');
-        getline(ss, ameni, ',');
-
-        // Para leer el double con seguridad, consumiendo espacios previos
-        ss >> prec;
+        getline(ss, precStr, ',');
+        getline(ss, ameni);
 
         cod = stoi(codStr);
-
+        prec = stod(precStr);
         if (totalAlojamientos < capacidad) {
             alojamientos[totalAlojamientos++] = alojamiento(nom, cod, docAnf, depto, muni, tipo, dir, prec, ameni);
         }
@@ -201,7 +223,7 @@ void sistemaUdeaStay::cargarReservas(const string& nombreArchivo) {
 
     while (archivo >> codReserva >> codAlojamiento >> dia >> mes >> anio >> duracion
            >> documentoHuesped >> metodoPago >> diaPago >> mesPago >> anioPago >> monto) {
-
+            contadorIteraciones++;
         getline(archivo >> ws, anotacion);  // Anotación puede contener espacios
 
         fecha f(dia, mes, anio);           // fecha de entrada
@@ -211,10 +233,18 @@ void sistemaUdeaStay::cargarReservas(const string& nombreArchivo) {
                       f, duracion, metodoPago, fPago, monto, anotacion);
 
         reservas[totalReservas++] = r;
+
+        alojamiento* a = buscarAlojamiento(codAlojamiento);
+        if (a != nullptr) {
+            for (int i = 0; i < duracion; ++i) {
+                a->agregarFechaReservada(f.sumarDias(i));
+            }
+        }
     }
 
     archivo.close();
 }
+
 void sistemaUdeaStay::cargarHistorico(const string& nombreArchivo) {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
@@ -230,7 +260,7 @@ void sistemaUdeaStay::cargarHistorico(const string& nombreArchivo) {
 
     while (archivo >> codReserva >> codAlojamiento >> dia >> mes >> anio >> duracion
            >> documentoHuesped >> metodoPago >> diaPago >> mesPago >> anioPago >> monto) {
-
+            contadorIteraciones++;
         getline(archivo >> ws, anotacion);  // Anotación puede contener espacios
 
         fecha f(dia, mes, anio);            // fecha de entrada
@@ -244,8 +274,24 @@ void sistemaUdeaStay::cargarHistorico(const string& nombreArchivo) {
 
     archivo.close();
 }
+void sistemaUdeaStay::guardarHistorico(const string& nombreArchivo) {
+    ofstream archivo(nombreArchivo, ios::app);
+    if (!archivo) {
+        cout << "No se pudo abrir el archivo para guardar el histórico.\n";
+        return;
+    }
+
+    for (int i = 0; i < totalHistorico; ++i) {
+        contadorIteraciones++;
+        historico[i].guardarEnArchivo(archivo);
+    }
+
+    archivo.close();
+}
+
 bool sistemaUdeaStay::disponibilidadAlojamiento(alojamiento& a, fecha fInicio, int duracion) {
     for (int i = 0; i < duracion; i++) {
+        contadorIteraciones++;
         fecha f = fInicio.sumarDias(i);
         if (!a.disponible(f, 1)) {
             return false;
@@ -256,6 +302,7 @@ bool sistemaUdeaStay::disponibilidadAlojamiento(alojamiento& a, fecha fInicio, i
 
 alojamiento* sistemaUdeaStay::buscarAlojamiento(int codigo) {
     for (int i = 0; i < totalAlojamientos; ++i) {
+        contadorIteraciones++;
         if (alojamientos[i].getCodigo() == codigo) {
             return &alojamientos[i];
         }
@@ -269,6 +316,7 @@ int sistemaUdeaStay::siguienteCodigoReserva() {
     string linea;
 
     while (getline(archivo, linea)) {
+        contadorIteraciones++;
         stringstream ss(linea);
         int cod;
         ss >> cod;
@@ -292,6 +340,9 @@ void sistemaUdeaStay::guardarReservaEnArchivo(const reservacion& r) {
                 << r.getDuracion() << " "
                 << r.getDocumentoHuesped() << " "
                 << r.getMetodoPago() << " "
+                << r.getFechaPago().getDia() << " "
+                << r.getFechaPago().getMes()<< " "
+                << r.getFechaPago().getAnio()<< " "
                 << r.getMonto() << " "
                 << r.getAnotacion() << "\n";
         archivo.close();
@@ -315,31 +366,64 @@ void sistemaUdeaStay::crearReserva(int codAlojamiento, fecha fInicio, int duraci
 
     int nuevoCodigo = siguienteCodigoReserva();
 
-    // Pedir al huésped la fecha del pago (fecha actual)
+    // Solicitar fecha del pago con validación
     int dia, mes, anio;
-    cout << "Ingrese la fecha de hoy para el registro del pago:\n";
-    cout << "Día: "; cin >> dia;
-    cout << "Mes: "; cin >> mes;
-    cout << "Año: "; cin >> anio;
+    try {
+        cout << "Ingrese la fecha de hoy para el registro del pago:\n";
+        cout << "Día: "; cin >> dia;
+        cout << "Mes: "; cin >> mes;
+        cout << "Año: "; cin >> anio;
+
+        if (cin.fail() || dia < 1 || dia > 31 || mes < 1 || mes > 12 || anio < 1900) {
+            throw runtime_error("Fecha inválida. Intente de nuevo.");
+        }
+    } catch (const exception& e) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Error: " << e.what() << endl;
+        return;
+    }
     fecha fPago(dia, mes, anio);
 
     double monto = a->getPrecioPorNoche() * duracion;
 
     string metodo;
-    cout << "1. PSE\n2. Tarjeta de crédito\nIngrese el método de pago: ";
-    getline(cin >> ws, metodo);
+    while (true) {
+        try {
+            cout << "1. PSE\n2. Tarjeta de crédito\nIngrese el método de pago: ";
+            getline(cin >> ws, metodo);
 
-    // Pedir anotación opcional
+            string metodoNormalizado = normalizarTexto(metodo);
+
+            if (metodoNormalizado == "1" || metodoNormalizado == "pse") {
+                metodo = "PSE";
+                break;
+            } else if (metodoNormalizado == "2" || metodoNormalizado == "tarjeta de credito" || metodoNormalizado == "tarjeta crédito" || metodoNormalizado == "tarjeta") {
+                metodo = "Tarjeta de crédito";
+                break;
+            } else {
+                throw invalid_argument("Método de pago no válido.");
+            }
+        } catch (const exception& e) {
+            cout << "Error: " << e.what() << ". Intenta de nuevo.\n";
+        }
+    }
+
+
+    // Pedir anotación opcional con validación
     string anotacion;
-    cout << "¿Desea agregar una anotación especial? (s/n): ";
-    char opcion;
-    cin >> opcion;
-    cin.ignore();  // Limpiar buffer
-    if (opcion == 's' || opcion == 'S') {
-        cout << "Ingrese la anotación: ";
-        getline(cin, anotacion);
-    } else {
-        anotacion = "Reserva confirmada";
+    try {
+        string respuesta;
+        cout << "¿Desea agregar una anotación especial? (s/n): ";
+        getline(cin, respuesta);
+        if (respuesta == "s" || respuesta == "S") {
+            cout << "Ingrese la anotación: ";
+            getline(cin, anotacion);
+        } else {
+            anotacion = "Reserva confirmada";
+        }
+    } catch (...) {
+        anotacion = "Reserva confirmada";  // valor por defecto si algo falla
     }
 
     reservacion nueva(nuevoCodigo, codAlojamiento, huespedActual->getDocumento(),
@@ -348,6 +432,7 @@ void sistemaUdeaStay::crearReserva(int codAlojamiento, fecha fInicio, int duraci
     guardarReservaEnArchivo(nueva);
 
     for (int i = 0; i < duracion; i++) {
+        contadorIteraciones++;
         fecha f = fInicio.sumarDias(i);
         a->agregarFechaReservada(f);
     }
@@ -357,13 +442,14 @@ void sistemaUdeaStay::crearReserva(int codAlojamiento, fecha fInicio, int duraci
     cout << "Nombre del huésped: " << huespedActual->getNombre() << endl;
     cout << "Código del alojamiento: " << codAlojamiento << endl;
     cout << "Desde: "; fInicio.mostrarFecha();
-    cout << "Hasta: "; fInicio.sumarDias(duracion-1).mostrarFecha();
+    cout << "Hasta: "; fInicio.sumarDias(duracion - 1).mostrarFecha();
     if (!anotacion.empty())
         cout << "Anotación: " << anotacion << endl;
 }
 
 anfitrion* sistemaUdeaStay::buscarAnfitrion(const string& documento) {
     for (int i = 0; i < totalAnfitriones; i++) {
+        contadorIteraciones++;
         if (anfitriones[i].getDocumento() == documento) {
             return &anfitriones[i];
         }
@@ -380,6 +466,7 @@ void sistemaUdeaStay::anularReservacion() {
 
     // Buscar la reservación por código
     for (int i = 0; i < totalReservas; ++i) {
+        contadorIteraciones++;
         if (reservas[i].getCodigoReserva() == codigo) {
             // Verificar si el usuario actual tiene permiso
             alojamiento* a = buscarAlojamiento(reservas[i].getCodigoAlojamiento());
@@ -413,6 +500,7 @@ void sistemaUdeaStay::anularReservacion() {
 
     // Eliminar del arreglo
     for (int i = indice; i < totalReservas - 1; ++i) {
+        contadorIteraciones++;
         reservas[i] = reservas[i + 1];
     }
     totalReservas--;
@@ -425,6 +513,7 @@ void sistemaUdeaStay::anularReservacion() {
     }
 
     for (int i = 0; i < totalReservas; ++i) {
+        contadorIteraciones++;
         out << reservas[i].getCodigoReserva() << " "
             << reservas[i].getCodigoAlojamiento() << " "
             << reservas[i].getFechaEntrada().getDia() << " "
@@ -448,6 +537,7 @@ void sistemaUdeaStay::guardarReservas(const string& nombreArchivo) {
         return;
     }
     for (int i = 0; i < totalReservas; ++i) {
+        contadorIteraciones++;
         reservas[i].guardarEnArchivo(archivo); // Método de la clase `reservacion`
     }
     archivo.close();
@@ -474,10 +564,12 @@ void sistemaUdeaStay::consultarReservacionesAnfitrion() {
     fechaInicio.mostrarFecha(); cout << " y "; fechaFin.mostrarFecha(); cout << " ===\n";
 
     for (int i = 0; i < totalReservas; ++i) {
+        contadorIteraciones++;
         int codAloj = reservas[i].getCodigoAlojamiento();
         fecha fechaEntrada = reservas[i].getFechaEntrada();
 
         for (int j = 0; j < totalAlojamientos; ++j) {
+            contadorIteraciones++;
             if (alojamientos[j].getCodigo() == codAloj &&
                 alojamientos[j].getDocumentoAnfitrion() == docAnfitrion) {
 
@@ -490,6 +582,58 @@ void sistemaUdeaStay::consultarReservacionesAnfitrion() {
     }
 }
 void sistemaUdeaStay::mostrarAlojamientosDisponibles() {
+    cout << "\n¿Desea buscar por filtros [1] o por código de alojamiento [2]? ";
+    int modoBusqueda;
+    cin >> modoBusqueda;
+
+    if (modoBusqueda == 2) {
+        int codigo;
+        cout << "Ingrese el código del alojamiento: ";
+        cin >> codigo;
+
+        alojamiento* alo = nullptr;
+        for (int i = 0; i < totalAlojamientos; ++i) {
+            contadorIteraciones++;
+            if (alojamientos[i].getCodigo() == codigo) {
+                alo = &alojamientos[i];
+                break;
+            }
+        }
+
+        if (!alo) {
+            cout << "Alojamiento no encontrado.\n";
+            return;
+        }
+
+        int dia, mes, anio, duracion;
+        cout << "Fecha de entrada:\nDía: "; cin >> dia;
+        cout << "Mes: "; cin >> mes;
+        cout << "Año: "; cin >> anio;
+        cout << "Duración (en días): "; cin >> duracion;
+
+        try {
+            fecha fechaInicio(dia, mes, anio);
+
+            if (disponibilidadAlojamiento(*alo, fechaInicio, duracion)) {
+                alo->mostrarAlojamiento();
+                cout << "\n¿Desea reservar este alojamiento? (s/n): ";
+                char conf; cin >> conf;
+                if (conf == 's' || conf == 'S') {
+                    crearReserva(alo->getCodigo(), fechaInicio, duracion);
+                } else {
+                    cout << "Operación cancelada.\n";
+                }
+            } else {
+                cout << "Este alojamiento no está disponible en la fecha indicada.\n";
+            }
+        } catch (const exception& e) {
+            cout << "Error en la fecha: " << e.what() << "\n";
+        }
+
+        return;
+    }
+
+ // Filtro 2
     string municipio;
     int dia, mes, anio, duracion;
     double precioMax = -1;
@@ -516,55 +660,47 @@ void sistemaUdeaStay::mostrarAlojamientosDisponibles() {
         cin >> puntuacionMin;
     }
 
-    fecha fechaInicio(dia, mes, anio);
-    bool encontrados = false;
-    int seleccionables[capacidad];
-    int contSeleccionables = 0;
+    try {
+        fecha fechaInicio(dia, mes, anio);
+        bool encontrados = false;
+        int seleccionables[capacidad];
+        int contSeleccionables = 0;
 
-    cout << "\n=== Resultados ===\n";
-    for (int i = 0; i < totalAlojamientos; ++i) {
-        alojamiento& a = alojamientos[i];
-        anfitrion* anfitrionDelAloj = buscarAnfitrion(a.getDocumentoAnfitrion());
+        cout << "\n=== Resultados ===\n";
+        for (int i = 0; i < totalAlojamientos; ++i) {
+            alojamiento& a = alojamientos[i];
+            anfitrion* anfitrionDelAloj = buscarAnfitrion(a.getDocumentoAnfitrion());
 
-        if (a.getMunicipio() != municipio) continue;
-        if (precioMax != -1 && a.getPrecioPorNoche() > precioMax) continue;
-        if (puntuacionMin != -1 && anfitrionDelAloj && anfitrionDelAloj->getPuntuacion() < puntuacionMin) continue;
-        if (!disponibilidadAlojamiento(a, fechaInicio, duracion)) continue;
+            if (normalizarTexto(a.getMunicipio()) != normalizarTexto(municipio)) continue;
+            if (precioMax != -1 && a.getPrecioPorNoche() > precioMax) continue;
+            if (puntuacionMin != -1 && anfitrionDelAloj && anfitrionDelAloj->getPuntuacion() < puntuacionMin) continue;
+            if (!disponibilidadAlojamiento(a, fechaInicio, duracion)) continue;
 
-        cout << "\n[" << contSeleccionables + 1 << "] ";
-        a.mostrarAlojamiento();
-        encontrados = true;
-        seleccionables[contSeleccionables++] = a.getCodigo();
-    }
+            cout << "\n[" << contSeleccionables + 1 << "] ";
+            a.mostrarAlojamiento();
+            encontrados = true;
+            seleccionables[contSeleccionables++] = a.getCodigo();
+        }
 
-    if (!encontrados) {
-        cout << "\nNo se encontraron alojamientos con los filtros aplicados.\n";
-        return;
-    }
+        if (!encontrados) {
+            cout << "\nNo se encontraron alojamientos con los filtros aplicados.\n";
+            return;
+        }
 
-    int seleccion;
-    cout << "\nSeleccione un alojamiento por número para reservar (0 para cancelar): ";
-    cin >> seleccion;
+        int seleccion;
+        cout << "\nSeleccione un alojamiento por número para reservar (0 para cancelar): ";
+        cin >> seleccion;
 
-    if (seleccion > 0 && seleccion <= contSeleccionables) {
-        crearReserva(seleccionables[seleccion - 1], fechaInicio, duracion);
-    } else {
-        cout << "Operación cancelada.\n";
+        if (seleccion > 0 && seleccion <= contSeleccionables) {
+            crearReserva(seleccionables[seleccion - 1], fechaInicio, duracion);
+        } else {
+            cout << "Operación cancelada.\n";
+        }
+    } catch (const exception& e) {
+        cout << "Error en la fecha: " << e.what() << "\n";
     }
 }
-void sistemaUdeaStay::guardarHistorico(const string& nombreArchivo) {
-    ofstream archivo(nombreArchivo, ios::app); // modo append para no borrar lo anterior
-    if (!archivo) {
-        cout << "Error al abrir el archivo histórico.\n";
-        return;
-    }
 
-    for (int i = 0; i < totalHistorico; ++i) {
-        historico[i].guardarEnArchivo(archivo); // Método en la clase reservacion
-    }
-
-    archivo.close();
-}
 void sistemaUdeaStay::actualizarHistorico(const string& archivoReservas, const string& archivoHistorico) {
     cout << "\n=== Actualizar Histórico ===\n";
     int dia, mes, anio;
@@ -576,6 +712,7 @@ void sistemaUdeaStay::actualizarHistorico(const string& archivoReservas, const s
 
     // Validar que la fecha de corte no sea menor que las del histórico
     for (int i = 0; i < totalHistorico; ++i) {
+        contadorIteraciones++;
         if (historico[i].getFechaEntrada() > fechaCorte) {
             cout << "Error: La fecha de corte no puede ser menor que fechas en el histórico.\n";
             return;
@@ -602,6 +739,7 @@ void sistemaUdeaStay::actualizarHistorico(const string& archivoReservas, const s
 
     // Actualizar arreglo de reservas
     for (int i = 0; i < nuevaTotal; ++i) {
+        contadorIteraciones++;
         reservas[i] = nuevasReservas[i];
     }
     totalReservas = nuevaTotal;
@@ -612,10 +750,24 @@ void sistemaUdeaStay::actualizarHistorico(const string& archivoReservas, const s
     cout << "Histórico actualizado. Reservas anteriores al ";
     cout << dia << "/" << mes << "/" << anio << " fueron movidas al archivo histórico.\n";
 }
+void mostrarConsumoRecursos(int totalHuespedes, int totalAnfitriones, int totalAlojamientos,
+                            int totalReservas, int totalHistorico) {
+    long long memoriaTotal = 0;
+    memoriaTotal += totalHuespedes * sizeof(huesped);
+    memoriaTotal += totalAnfitriones * sizeof(anfitrion);
+    memoriaTotal += totalAlojamientos * sizeof(alojamiento);
+    memoriaTotal += totalReservas * sizeof(reservacion);
+    memoriaTotal += totalHistorico * sizeof(reservacion);
+
+    cout << "\n=== Medición del consumo de recursos ===\n";
+    cout << "Iteraciones totales realizadas: " << contadorIteraciones << "\n";
+    cout << "Memoria total consumida (bytes): " << memoriaTotal << " B\n";
+}
 sistemaUdeaStay::~sistemaUdeaStay() {
     delete[] huespedes;
     delete[] anfitriones;
     delete[] alojamientos;
     delete[] reservas;
+    delete[] historico;
 
 }

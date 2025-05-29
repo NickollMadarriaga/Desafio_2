@@ -1,4 +1,4 @@
-#include "reservacion.h"
+ #include "reservacion.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -8,9 +8,7 @@
 reservacion::reservacion() :codigoReserva(0), codigoAlojamiento(0), documentoHuesped(""), duracion(1), metodoPago("PSE"), monto(0.0), anotacion("") {}
 reservacion::reservacion(int codRes, int codAloj, string docHuesp, fecha entrada,int dur, string metodo, fecha pago, double m, string nota) {
 
-    if (docHuesp.empty()) throw invalid_argument("Documento del huésped vacío.");
     if (dur <= 0) throw invalid_argument("Duración inválida.");
-    if (metodo != "PSE" && metodo != "TCredito") throw invalid_argument("Método de pago inválido.");
     if (m < 0) throw invalid_argument("Monto inválido.");
     if (nota.length() > 1000) throw invalid_argument("Anotación demasiado larga.");
 
@@ -31,7 +29,7 @@ string reservacion::getDocumentoHuesped() const { return documentoHuesped; }
 fecha reservacion::getFechaEntrada() const { return fechaEntrada; }
 int reservacion::getDuracion() const { return duracion; }
 string reservacion::getMetodoPago() const { return metodoPago; }
-//fecha reservacion::getFechaPago() const { return fechaPago; }
+fecha reservacion::getFechaPago() const { return fechaPago; }
 double reservacion::getMonto() const { return monto; }
 string reservacion::getAnotacion() const { return anotacion; }
 

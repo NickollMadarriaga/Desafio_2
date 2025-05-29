@@ -65,8 +65,8 @@ void alojamiento::mostrarAlojamiento() {
     cout << "Municipio: " << municipio << endl;
     cout << "Tipo: " << tipo << endl;
     cout << "Dirección: " << direccion << endl;
-    cout << "Amenidades: " << amenidades << endl;
     cout << "Precio por noche: " << precioPorNoche << endl;
+    cout << "Amenidades: " << amenidades << endl;
 }
 void alojamiento::eliminarFechaReservada(const fecha& f) {
     for (int i = 0; i < numFechas; ++i) {

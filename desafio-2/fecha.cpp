@@ -1,5 +1,6 @@
 #include "fecha.h"
 #include <iostream>
+#include <ctime>
 using namespace std;
 
 fecha::fecha() : dia(1), mes(1), anio(2024) {}
@@ -28,7 +29,7 @@ void fecha::setAnio(int a) {
     if (a < 2024) throw std::invalid_argument("Año inválido");
     anio = a;
 }
-#include <ctime>
+
 
 // Función auxiliar para saber si un año es bisiesto
 bool esBisiesto(int a) {

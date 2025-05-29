@@ -9,7 +9,9 @@
 #include "alojamiento.h"
 #include "reservacion.h"
 using namespace std;
-
+void mostrarConsumoRecursos(int totalHuespedes, int totalAnfitriones,
+                            int totalAlojamientos, int totalReservas,
+                            int totalHistorico);
 class sistemaUdeaStay
 {
 private:
@@ -54,6 +56,11 @@ public:
     void guardarHistorico(const std::string&);
     anfitrion* buscarAnfitrion(const string& documento);
     void mostrarAlojamientosDisponibles();
+    int getTotalHuespedes() const;
+    int getTotalAnfitriones() const;
+    int getTotalAlojamientos() const;
+    int getTotalReservas() const;
+    int getTotalHistorico() const;
 };
 
 #endif // SISTEMAUDEASTAY_H
